@@ -6,14 +6,20 @@ public class Movement : MonoBehaviour
 {
     [SerializeField] private float thrust = 1000f;
     [SerializeField] private float rotationSpeed = 100f;
+    [SerializeField] private AudioClip audioClipThrust;
+    [SerializeField] private ParticleSystem particleSystemBooster;
+    [SerializeField] private ParticleSystem particleSystemSideThrusterLeft;
+    [SerializeField] private ParticleSystem particleSystemSideThrusterRight;
+
     private Rigidbody mRigidbody;
-    // Start is called before the first frame update
+    private AudioSource mAudioSource;
+
     void Start()
     {
         mRigidbody = GetComponent<Rigidbody>();
+        mAudioSource = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         ProcessThrust();
@@ -24,29 +30,72 @@ public class Movement : MonoBehaviour
     {        
         if (Input.GetKey(KeyCode.Space))
         {
-            //Debug.Log("SPACE pressed - Thrust");
-            mRigidbody.AddRelativeForce(Vector3.up * thrust * Time.deltaTime);
+            StartThrusting();
+        }
+        else
+        {
+            StopThrusting();
         }
     }
+    private void StartThrusting()
+    {
+        if (!particleSystemBooster.isPlaying)
+        {
+            particleSystemBooster.Play();
+        }
+        mRigidbody.AddRelativeForce(Vector3.up * thrust * Time.deltaTime);
+        if (!mAudioSource.isPlaying)
+        {
+            mAudioSource.PlayOneShot(audioClipThrust);
+        }
+    }
+    private void StopThrusting()
+    {
+        mAudioSource.Stop();
+        particleSystemBooster.Stop();
+    }
 
-     private void ProcessRotation()
+    private void ProcessRotation()
     {
         if (Input.GetKey(KeyCode.A))
         {
-            ApplyRotation(rotationSpeed);
-            //Debug.Log("'a' pressed - Rotate left");
+            RotateLeft();
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            ApplyRotation(-rotationSpeed);
-            //Debug.Log("'d' pressed - Rotate right");
+            RotateRight();
+        }
+        else
+        {
+            StopRotation();
+        }
+    }   
+    private void RotateRight()
+    {
+        ApplyRotation(-rotationSpeed);
+        if (!particleSystemSideThrusterLeft.isPlaying)
+        {
+            particleSystemSideThrusterLeft.Play();
         }
     }
-
+    private void RotateLeft()
+    {
+        ApplyRotation(rotationSpeed);
+        if (!particleSystemSideThrusterRight.isPlaying)
+        {
+            particleSystemSideThrusterRight.Play();
+        }
+    }
+    private void StopRotation()
+    {
+        particleSystemSideThrusterLeft.Stop();
+        particleSystemSideThrusterRight.Stop();
+    }
     private void ApplyRotation(float rotationThisFrame)
     {
         mRigidbody.freezeRotation = true; //Freeze physic rotation
         transform.Rotate(Vector3.forward * rotationThisFrame * Time.deltaTime);
         mRigidbody.freezeRotation = false;
     }
+
 }
