@@ -47,7 +47,6 @@ public class CollisionHandler : MonoBehaviour
         switch (collision.gameObject.tag)
         {
             case "Friendly":
-                Debug.Log("Hit Start Platform");
                 break;
             case "Finished":
                 StartLevelFinishSequence();
@@ -86,8 +85,13 @@ public class CollisionHandler : MonoBehaviour
         int nextLevelIndex = currentSceneIndex + 1;
         if (nextLevelIndex == SceneManager.sceneCountInBuildSettings)
         {
-            nextLevelIndex = 0;
+            nextLevelIndex = 1;
         }
         SceneManager.LoadScene(nextLevelIndex);
+    }
+
+    public void StartGame()
+    {
+        LoadNextLevel();
     }
 }
